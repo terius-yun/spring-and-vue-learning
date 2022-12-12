@@ -1,7 +1,9 @@
 package com.teriuslog.api.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teriuslog.api.domain.Post;
 import com.teriuslog.api.repository.PostRepository;
+import com.teriuslog.api.request.PostCreate;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -17,6 +19,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.http.MediaType.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -26,6 +29,9 @@ class PostContrallerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Autowired
     private PostRepository postRepository;
@@ -38,27 +44,38 @@ class PostContrallerTest {
     @Test
     @DisplayName("/posts 요청시 hello world 출력")
     void test() throws Exception {
-        //글 제목
-        //글 내용
+        //given
+        PostCreate request = PostCreate.builder()
+                .title("제목입니다.")
+                .content("내용입니다.")
+                .build();
+        String requestJson = objectMapper.writeValueAsString(request);
 
         //expected
         mockMvc.perform(MockMvcRequestBuilders.post("/posts")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"title\": \"글 제목\", \"content\": \"글 내용\"}")
+                        .contentType(APPLICATION_JSON)
+                        .content(requestJson)
                 )
                 .andExpect(status().isOk())
-                .andExpect(content().string("{}"))
+                .andExpect(content().string(""))
                 .andDo(print());
     }
 
     @Test
-    @DisplayName("/posts 요청시 title 값은 필수다.")
+    @DisplayName("/posts 요청시 필수값 누락에 대한 Exception.")
     void validateErrorTest() throws Exception {
+        //given
+        PostCreate request = PostCreate.builder()
+                .content("내용입니다.")
+                .build();
+        String requestJson = objectMapper.writeValueAsString(request);
+
+
+        //expected
         mockMvc.perform(MockMvcRequestBuilders.post("/posts")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"title\": null, \"content\": \"내용\"}")
+                        .contentType(APPLICATION_JSON)
+                        .content(requestJson)
                 )
-//                .andExpect(status().isOk())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.code").value("400"))
                 .andExpect(jsonPath("$.message").value("잘못된 요청입니다."))
@@ -67,13 +84,19 @@ class PostContrallerTest {
     }
 
     @Test
-    @DisplayName("/posts 요청시 값이 저장된다.")
+    @DisplayName("/posts 요청시 값이 저장.")
     void postSaveTest() throws Exception {
+        //given
+        PostCreate request = PostCreate.builder()
+                .title("제목입니다.")
+                .content("내용입니다.")
+                .build();
+        String requestJson = objectMapper.writeValueAsString(request);
 
         //when
         mockMvc.perform(MockMvcRequestBuilders.post("/posts")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"title\": \"제목입니다.\", \"content\": \"내용입니다.\"}")
+                        .contentType(APPLICATION_JSON)
+                        .content(requestJson)
                 )
                 .andExpect(status().isOk())
                 .andDo(print());
