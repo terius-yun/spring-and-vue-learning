@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -20,6 +21,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.MediaType.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -52,7 +54,7 @@ class PostContrallerTest {
         String requestJson = objectMapper.writeValueAsString(request);
 
         //expected
-        mockMvc.perform(MockMvcRequestBuilders.post("/posts")
+        mockMvc.perform(post("/posts")
                         .contentType(APPLICATION_JSON)
                         .content(requestJson)
                 )
@@ -72,7 +74,7 @@ class PostContrallerTest {
 
 
         //expected
-        mockMvc.perform(MockMvcRequestBuilders.post("/posts")
+        mockMvc.perform(post("/posts")
                         .contentType(APPLICATION_JSON)
                         .content(requestJson)
                 )
@@ -94,7 +96,7 @@ class PostContrallerTest {
         String requestJson = objectMapper.writeValueAsString(request);
 
         //when
-        mockMvc.perform(MockMvcRequestBuilders.post("/posts")
+        mockMvc.perform(post("/posts")
                         .contentType(APPLICATION_JSON)
                         .content(requestJson)
                 )
@@ -107,5 +109,32 @@ class PostContrallerTest {
         Post post = postRepository.findAll().get(0);
         assertEquals("제목입니다.",post.getTitle());
         assertEquals("내용입니다.",post.getContent());
+    }
+
+    @Test
+    @DisplayName("글 1개 조회")
+    void requestOnePost() throws Exception {
+        //given
+        Post request = Post.builder()
+                .title("foo")
+                .content("bar")
+                .build();
+        postRepository.save(request);
+
+        //when
+        mockMvc.perform(get("/posts/{postId}", request.getId())
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(request.getId()))
+                .andExpect(jsonPath("$.title").value("foo"))
+                .andExpect(jsonPath("$.content").value("bar"))
+                .andDo(print());
+        //then
+
+        assertEquals(1L, postRepository.count());
+        Post post = postRepository.findAll().get(0);
+        assertEquals("foo", post.getTitle());
+        assertEquals("bar", post.getContent());
+
     }
 }

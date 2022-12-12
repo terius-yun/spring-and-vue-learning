@@ -1,5 +1,6 @@
 package com.teriuslog.api.controller;
 
+import com.teriuslog.api.domain.Post;
 import com.teriuslog.api.request.PostCreate;
 import com.teriuslog.api.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -23,5 +24,10 @@ public class PostContraller {
     @PostMapping("/posts")
     public void post(@RequestBody @Valid PostCreate request){
         postService.write(request);
+    }
+
+    @GetMapping("/posts/{postId}")
+    public Post searchOnePost(@PathVariable(name = "postId") Long id){
+        return postService.getOnePost(id);
     }
 }
