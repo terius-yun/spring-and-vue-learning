@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -23,7 +24,12 @@ public class PostContraller {
     }
 
     @GetMapping("/posts/{postId}")
-    public PostResponse searchOnePost(@PathVariable(name = "postId") Long id) {
-        return postService.getOnePost(id);
+    public PostResponse getOnePost(@PathVariable(name = "postId") Long postId) {
+        return postService.getOnePost(postId);
+    }
+
+    @GetMapping("/posts")
+    public List<PostResponse> getPosts(){
+        return postService.getPosts();
     }
 }
