@@ -116,7 +116,7 @@ class PostContrallerTest {
     void requestOnePost() throws Exception {
         //given
         Post request = Post.builder()
-                .title("foo")
+                .title("123456789012345")
                 .content("bar")
                 .build();
         postRepository.save(request);
@@ -126,15 +126,9 @@ class PostContrallerTest {
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(request.getId()))
-                .andExpect(jsonPath("$.title").value("foo"))
+                .andExpect(jsonPath("$.title").value("1234567890"))
                 .andExpect(jsonPath("$.content").value("bar"))
                 .andDo(print());
         //then
-
-        assertEquals(1L, postRepository.count());
-        Post post = postRepository.findAll().get(0);
-        assertEquals("foo", post.getTitle());
-        assertEquals("bar", post.getContent());
-
     }
 }
