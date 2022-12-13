@@ -5,10 +5,8 @@ import lombok.*;
 import javax.persistence.*;
 
 @Getter
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,4 +16,21 @@ public class Post {
 
     @Lob
     private String content;
+
+    @Builder
+    public Post(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
+
+    public PostEditor.PostEditorBuilder toEditor(){
+        return PostEditor.builder()
+                .title(title)
+                .content(content);
+    }
+
+    public void edit(PostEditor postEditor) {
+        this.title = postEditor.getTitle();
+        this.content = postEditor.getContent();
+    }
 }

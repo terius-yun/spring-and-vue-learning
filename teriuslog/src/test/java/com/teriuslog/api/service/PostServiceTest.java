@@ -3,6 +3,7 @@ package com.teriuslog.api.service;
 import com.teriuslog.api.domain.Post;
 import com.teriuslog.api.repository.PostRepository;
 import com.teriuslog.api.request.PostCreate;
+import com.teriuslog.api.request.PostEdit;
 import com.teriuslog.api.request.PostSearch;
 import com.teriuslog.api.response.PostResponse;
 import org.junit.jupiter.api.BeforeEach;
@@ -94,5 +95,57 @@ class PostServiceTest {
         assertEquals(10L, posts.size());
         assertEquals("terius title 19", posts.get(0).getTitle());
         assertEquals("terius title 15", posts.get(4).getTitle());
+    }
+
+    @Test
+    @DisplayName("글 제목 수정")
+    void editPostTitleTest() {
+        //give
+        Post post = Post.builder()
+                .title("terius title")
+                .content("terius content")
+                .build();
+
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("terius edit title")
+                .content("terius content")
+                .build();
+
+        //when
+        postService.edit(post.getId(),postEdit);
+
+        //then
+        Post changedPost = postRepository.findById(post.getId())
+                .orElseThrow(() -> new RuntimeException("글이 존재하지않습니다. id= " + post.getId()));
+        assertEquals("terius edit title", changedPost.getTitle());
+        assertEquals("terius content", changedPost.getContent());
+    }
+
+    @Test
+    @DisplayName("글 내용 수정")
+    void editPostContentTest() {
+        //give
+        Post post = Post.builder()
+                .title("terius title")
+                .content("terius content")
+                .build();
+
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("terius title")
+                .content("terius edit content")
+                .build();
+
+        //when
+        postService.edit(post.getId(),postEdit);
+
+        //then
+        Post changedPost = postRepository.findById(post.getId())
+                .orElseThrow(() -> new RuntimeException("글이 존재하지않습니다. id= " + post.getId()));
+        assertEquals("terius title", changedPost.getTitle());
+        assertEquals("terius edit content", changedPost.getContent());
     }
 }

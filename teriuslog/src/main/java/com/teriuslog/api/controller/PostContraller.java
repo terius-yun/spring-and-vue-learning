@@ -3,6 +3,7 @@ package com.teriuslog.api.controller;
 import com.teriuslog.api.domain.Post;
 import com.teriuslog.api.repository.PostRepository;
 import com.teriuslog.api.request.PostCreate;
+import com.teriuslog.api.request.PostEdit;
 import com.teriuslog.api.request.PostSearch;
 import com.teriuslog.api.response.PostResponse;
 import com.teriuslog.api.service.PostService;
@@ -35,5 +36,10 @@ public class PostContraller {
     @GetMapping("/posts")
     public List<PostResponse> getPosts(@ModelAttribute PostSearch postSearch){
         return postService.getPostList(postSearch);
+    }
+
+    @PatchMapping("/posts/{postId}")
+    public void editPost(@PathVariable(name = "postId") Long postId, @RequestBody @Valid PostEdit request){
+        postService.edit(postId,request);
     }
 }

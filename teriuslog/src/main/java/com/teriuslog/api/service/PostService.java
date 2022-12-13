@@ -1,19 +1,18 @@
 package com.teriuslog.api.service;
 
 import com.teriuslog.api.domain.Post;
+import com.teriuslog.api.domain.PostEditor;
 import com.teriuslog.api.repository.PostRepository;
 import com.teriuslog.api.request.PostCreate;
+import com.teriuslog.api.request.PostEdit;
 import com.teriuslog.api.request.PostSearch;
 import com.teriuslog.api.response.PostResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -38,5 +37,18 @@ public class PostService {
         return postRepository.getList(postSearch).stream()
                 .map(PostResponse::new)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void edit(Long postId, PostEdit postEdit){
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 글입니다."));
+
+        PostEditor postEditor = post.toEditor()
+                .title(postEdit.getTitle())
+                .content(postEdit.getContent())
+                .build();
+
+        post.edit(postEditor);
     }
 }
