@@ -3,14 +3,19 @@ package com.teriuslog.api.service;
 import com.teriuslog.api.domain.Post;
 import com.teriuslog.api.repository.PostRepository;
 import com.teriuslog.api.request.PostCreate;
+import com.teriuslog.api.request.PostSearch;
 import com.teriuslog.api.response.PostResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -31,7 +36,7 @@ class PostServiceTest {
 
     @Test
     @DisplayName("글 작성")
-    void savePostService() {
+    void savePostServiceTest() {
         //given
         PostCreate postCreate = PostCreate.builder()
                 .title("제목입니다.")
@@ -50,7 +55,7 @@ class PostServiceTest {
 
     @Test
     @DisplayName("글 1개 조회")
-    void searchOnePost() {
+    void searchOnePostTest() {
         //give
         Post requestPost = Post.builder()
                 .title("foo")
@@ -69,25 +74,25 @@ class PostServiceTest {
 
     @Test
     @DisplayName("글 여러개 조회")
-    void getPosts() {
+    void getPostsTest() {
         //give
-        postRepository.saveAll(List.of(
-                Post.builder()
-                        .title("title1")
-                        .content("content1")
-                        .build(),
-                Post.builder()
-                        .title("title2")
-                        .content("content2")
-                        .build()
-        ));
+        List<Post> requestPosts = IntStream.range(0,20)
+                        .mapToObj(i -> Post.builder()
+                                .title("terius title "+i)
+                                .content("content "+i)
+                                .build()).collect(Collectors.toList());
 
+        postRepository.saveAll(requestPosts);
+
+        PostSearch postSearch = PostSearch.builder()
+                .page(1)
+                .build();
         //when
-        List<PostResponse> posts = postService.getPosts();
+        List<PostResponse> posts = postService.getPostList(postSearch);
 
         //then
-        assertEquals(2L, posts.size());
-        assertEquals("title2",posts.get(1).getTitle());
-        assertEquals("content2",posts.get(1).getContent());
+        assertEquals(10L, posts.size());
+        assertEquals("terius title 19", posts.get(0).getTitle());
+        assertEquals("terius title 15", posts.get(4).getTitle());
     }
 }

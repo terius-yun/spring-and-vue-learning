@@ -4,34 +4,29 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teriuslog.api.domain.Post;
 import com.teriuslog.api.repository.PostRepository;
 import com.teriuslog.api.request.PostCreate;
-import org.hamcrest.Matchers;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static org.hamcrest.Matchers.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.http.MediaType.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-class PostContrallerTest {
+class PostControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -117,7 +112,7 @@ class PostContrallerTest {
 
     @Test
     @DisplayName("글 1개 조회")
-    void requestOnePost() throws Exception {
+    void requestOnePostTest() throws Exception {
         //given
         Post request = Post.builder()
                 .title("123456789012345")
@@ -130,7 +125,7 @@ class PostContrallerTest {
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(request.getId()))
-                .andExpect(jsonPath("$.title").value("1234567890"))
+                .andExpect(jsonPath("$.title").value("123456789012345"))
                 .andExpect(jsonPath("$.content").value("bar"))
                 .andDo(print());
         //then
@@ -138,31 +133,50 @@ class PostContrallerTest {
 
     @Test
     @DisplayName("글 여러개 조회")
-    void gerPosts() throws Exception {
+    void gerPostsTest() throws Exception {
         //given
-        postRepository.saveAll(List.of(
-                Post.builder()
-                        .title("title1")
-                        .content("content1")
-                        .build(),
-                Post.builder()
-                        .title("title2")
-                        .content("content2")
-                        .build()
-        ));
+        List<Post> requestPosts = IntStream.range(1,31)
+                .mapToObj(i -> Post.builder()
+                        .title("terius title "+i)
+                        .content("content "+i)
+                        .build()).collect(Collectors.toList());
+
+        postRepository.saveAll(requestPosts);
 
         //when
-        mockMvc.perform(get("/posts")
+        mockMvc.perform(get("/posts?page=1&size=10")
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()", is(2)))
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].title").value("title1"))
-                .andExpect(jsonPath("$[0].content").value("content1"))
-                .andExpect(jsonPath("$[1].id").value(2))
-                .andExpect(jsonPath("$[1].title").value("title2"))
-                .andExpect(jsonPath("$[1].content").value("content2"))
+                .andExpect(jsonPath("$.length()", is(10)))
+                .andExpect(jsonPath("$[0].id", is(30)))
+                .andExpect(jsonPath("$[0].title", is("terius title 30")))
+                .andExpect(jsonPath("$[0].content", is("content 30")))
                 .andDo(print());
         //then
     }
+
+
+    @Test
+    @DisplayName("글 0번페이지 조회")
+    void gerPostsTest2() throws Exception {
+        //given
+        List<Post> requestPosts = IntStream.range(1,31)
+                .mapToObj(i -> Post.builder()
+                        .title("terius title "+i)
+                        .content("content "+i)
+                        .build()).collect(Collectors.toList());
+
+        postRepository.saveAll(requestPosts);
+
+        //when
+        mockMvc.perform(get("/posts?page=0&size=10")
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()", is(10)))
+                .andExpect(jsonPath("$[0].title", is("terius title 30")))
+                .andExpect(jsonPath("$[0].content", is("content 30")))
+                .andDo(print());
+        //then
+    }
+
 }
