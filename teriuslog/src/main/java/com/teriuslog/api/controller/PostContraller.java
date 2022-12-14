@@ -1,6 +1,7 @@
 package com.teriuslog.api.controller;
 
 import com.teriuslog.api.domain.Post;
+import com.teriuslog.api.exception.InvalidRequest;
 import com.teriuslog.api.repository.PostRepository;
 import com.teriuslog.api.request.PostCreate;
 import com.teriuslog.api.request.PostEdit;
@@ -25,6 +26,7 @@ public class PostContraller {
 
     @PostMapping("/posts")
     public void post(@RequestBody @Valid PostCreate request) {
+        request.validate();
         postService.write(request);
     }
 

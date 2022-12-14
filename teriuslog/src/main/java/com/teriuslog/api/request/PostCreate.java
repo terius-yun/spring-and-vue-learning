@@ -1,6 +1,7 @@
 package com.teriuslog.api.request;
 
 import com.teriuslog.api.domain.Post;
+import com.teriuslog.api.exception.InvalidRequest;
 import lombok.*;
 
 import javax.validation.constraints.NotBlank;
@@ -26,5 +27,11 @@ public class PostCreate {
     public PostCreate(String title, String content){
         this.title = title;
         this.content = content;
+    }
+
+    public void validate(){
+        if(title.contains("부적절한단어")){
+            throw new InvalidRequest("title","제목에 부적절한단어를 포함할 수 없습니다.");
+        }
     }
 }

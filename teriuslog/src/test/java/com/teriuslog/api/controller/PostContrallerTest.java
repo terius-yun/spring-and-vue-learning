@@ -43,7 +43,7 @@ class PostControllerTest {
     }
 
     @Test
-    @DisplayName("/posts 요청시 hello world 출력")
+    @DisplayName("/posts 요청시 빈값 출력")
     void test() throws Exception {
         //given
         PostCreate request = PostCreate.builder()
@@ -85,7 +85,7 @@ class PostControllerTest {
     }
 
     @Test
-    @DisplayName("/posts 요청시 값이 저장.")
+    @DisplayName("/posts 요청시 게시글 저장.")
     void postSaveTest() throws Exception {
         //given
         PostCreate request = PostCreate.builder()
@@ -247,6 +247,68 @@ class PostControllerTest {
         mockMvc.perform(delete("/posts/{postId}",post.getId())
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 게시글 조회")
+    void requestNotFoundPostTest() throws Exception {
+        //given
+
+        //expected
+        mockMvc.perform(get("/posts/{postId}", 1L)
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 게시글 수정")
+    void editNotFoundPostTest() throws Exception {
+        //given
+        PostEdit postEdit = PostEdit.builder()
+                .title("terius title")
+                .content("terius edit content")
+                .build();
+
+        //expected
+        mockMvc.perform(patch("/posts/{postId}", 1L)
+                        .contentType(APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(postEdit)))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+        //then
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 게시글 삭제 요청")
+    void deleteNotFoundPostTest() throws Exception {
+        //given
+        //expected
+        //expected
+        mockMvc.perform(delete("/posts/{postId}", 1L)
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("/posts 요청시 제목에 '부적절한단어'가 기입되면 안된다.")
+    void postSaveExceptionTest() throws Exception {
+        //given
+        PostCreate request = PostCreate.builder()
+                .title("부적절한단어 제목입니다.")
+                .content("내용입니다.")
+                .build();
+
+        String requestJson = objectMapper.writeValueAsString(request);
+
+        //expected
+        mockMvc.perform(post("/posts")
+                        .contentType(APPLICATION_JSON)
+                        .content(requestJson)
+                )
+                .andExpect(status().isBadRequest())
                 .andDo(print());
     }
 }
