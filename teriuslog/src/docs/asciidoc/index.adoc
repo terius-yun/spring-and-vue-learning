@@ -1,0 +1,33 @@
+= Terius API 명세
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+== 게시글 저장(등록)
+
+=== 요청
+include::{snippets}/save-post/http-request.adoc[]
+include::{snippets}/save-post/request-fields.adoc[]
+
+=== 응답
+include::{snippets}/save-post/http-response.adoc[]
+
+=== CURL
+include::{snippets}/get-post-one/curl-request.adoc[]
+
+
+== 게시글 단건 조회
+
+=== 요청
+include::{snippets}/get-post-one/http-request.adoc[]
+include::{snippets}/get-post-one/path-parameters.adoc[]
+
+=== 응답
+include::{snippets}/get-post-one/http-response.adoc[]
+include::{snippets}/get-post-one/response-fields.adoc[]
+
+=== CURL
+include::{snippets}/get-post-one/curl-request.adoc[]

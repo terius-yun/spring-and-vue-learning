@@ -1,6 +1,5 @@
 package com.teriuslog.api.controller;
 
-import com.teriuslog.api.exception.InvalidRequest;
 import com.teriuslog.api.exception.TeriusWebException;
 import com.teriuslog.api.response.ErrorResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +26,7 @@ public class ExceotionController {
                 .message("잘못된 요청입니다.")
                 .build();
 
-        for(FieldError fieldError : e.getFieldErrors()){
+        for (FieldError fieldError : e.getFieldErrors()) {
             response.addValidation(fieldError.getField(), fieldError.getDefaultMessage());
         }
 
@@ -36,7 +35,7 @@ public class ExceotionController {
 
     @ResponseBody
     @ExceptionHandler(TeriusWebException.class)
-    public ResponseEntity<ErrorResponse> teriusWebException(TeriusWebException e){
+    public ResponseEntity<ErrorResponse> teriusWebException(TeriusWebException e) {
         int statusCode = e.getStatusCode();
 
         ErrorResponse responseBody = ErrorResponse.builder()
