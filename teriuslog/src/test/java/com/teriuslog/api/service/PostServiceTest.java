@@ -148,4 +148,22 @@ class PostServiceTest {
         assertEquals("terius title", changedPost.getTitle());
         assertEquals("terius edit content", changedPost.getContent());
     }
+
+    @Test
+    @DisplayName("게시글 삭제")
+    void deletePostTest(){
+        //given
+        Post post = Post.builder()
+                .title("terius title")
+                .content("terius content")
+                .build();
+
+        postRepository.save(post);
+
+        //when
+        postService.deletePost(post.getId());
+
+        //then
+        assertEquals(0,postRepository.count());
+    }
 }

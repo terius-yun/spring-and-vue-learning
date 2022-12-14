@@ -232,4 +232,21 @@ class PostControllerTest {
         //then
     }
 
+    @Test
+    @DisplayName("게시글 삭제 요청")
+    void deletePostControllerTest() throws Exception {
+        //given
+        Post post = Post.builder()
+                .title("terius title")
+                .content("terius content")
+                .build();
+
+        postRepository.save(post);
+
+        //expected
+        mockMvc.perform(delete("/posts/{postId}",post.getId())
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(print());
+    }
 }
