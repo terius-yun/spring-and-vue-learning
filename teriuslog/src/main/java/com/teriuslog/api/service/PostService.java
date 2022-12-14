@@ -2,6 +2,7 @@ package com.teriuslog.api.service;
 
 import com.teriuslog.api.domain.Post;
 import com.teriuslog.api.domain.PostEditor;
+import com.teriuslog.api.exception.PostNotFound;
 import com.teriuslog.api.repository.PostRepository;
 import com.teriuslog.api.request.PostCreate;
 import com.teriuslog.api.request.PostEdit;
@@ -28,7 +29,7 @@ public class PostService {
 
     public PostResponse getOnePost(Long id){
         Post post = postRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 글입니다."));
+                .orElseThrow(PostNotFound::new);
 
         return new PostResponse(post);
     }
@@ -42,7 +43,7 @@ public class PostService {
     @Transactional
     public void edit(Long postId, PostEdit postEdit){
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 글입니다."));
+                .orElseThrow(PostNotFound::new);
 
         PostEditor postEditor = post.toEditor()
                 .title(postEdit.getTitle())
@@ -54,7 +55,7 @@ public class PostService {
 
     public void deletePost(Long postId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 글입니다."));
+                .orElseThrow(PostNotFound::new);
 
         postRepository.delete(post);
     }

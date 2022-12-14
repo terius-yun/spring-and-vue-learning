@@ -1,6 +1,7 @@
 package com.teriuslog.api.service;
 
 import com.teriuslog.api.domain.Post;
+import com.teriuslog.api.exception.PostNotFound;
 import com.teriuslog.api.repository.PostRepository;
 import com.teriuslog.api.request.PostCreate;
 import com.teriuslog.api.request.PostEdit;
@@ -11,15 +12,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 class PostServiceTest {
@@ -165,5 +163,54 @@ class PostServiceTest {
 
         //then
         assertEquals(0,postRepository.count());
+    }
+
+    @Test
+    @DisplayName("글 1개 조회 - 존재하지 않는 글")
+    void searchExceptionTest() {
+        //give
+        Post post = Post.builder()
+                .title("foo")
+                .content("bar")
+                .build();
+        postRepository.save(post);
+
+        //expected
+        assertThrows(PostNotFound.class,() -> postService.getOnePost(post.getId() + 1L));
+    }
+
+    @Test
+    @DisplayName("글 내용 수정 - 존재하지 않는 글")
+    void editPostExceptionTest() {
+        //give
+        Post post = Post.builder()
+                .title("terius title")
+                .content("terius content")
+                .build();
+
+        postRepository.save(post);
+
+        PostEdit postEdit = PostEdit.builder()
+                .title("terius title")
+                .content("terius edit content")
+                .build();
+
+        //expected
+        assertThrows(PostNotFound.class,() -> postService.edit(post.getId() + 1L,postEdit));
+    }
+
+    @Test
+    @DisplayName("게시글 삭제 - 존재하지 않는 글")
+    void deletePostExceptionTest(){
+        //given
+        Post post = Post.builder()
+                .title("terius title")
+                .content("terius content")
+                .build();
+
+        postRepository.save(post);
+
+        //expected
+        assertThrows(PostNotFound.class,() -> postService.deletePost(post.getId() + 1L));
     }
 }
